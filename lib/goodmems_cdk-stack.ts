@@ -7,12 +7,11 @@ export class GoodmemsCdkStack extends core.Stack {
   constructor(scope: core.App, id: string) {
     super(scope, id);
 
-    // The code that defines your stack goes here
-
     const bucket = new s3.Bucket(this, "WidgetStore");
+    bucket.applyRemovalPolicy(core.RemovalPolicy.DESTROY);
 
     const handler = new lambda.Function(this, "WidgetHandler", {
-      runtime: lambda.Runtime.NODEJS_10_X, // So we can use async in widget.js
+      runtime: lambda.Runtime.NODEJS_10_X, 
       code: lambda.Code.fromAsset("resources"),
       handler: "widgets.main",
       environment: {
@@ -20,17 +19,15 @@ export class GoodmemsCdkStack extends core.Stack {
       }
     });
 
-    bucket.grantReadWrite(handler); // was: handler.role);
+    bucket.grantReadWrite(handler); 
 
     const api = new apigateway.RestApi(this, "widgets-api", {
       restApiName: "Widget Service",
       description: "This service serves widgets."
     });
 
-    const getWidgetsIntegration = new apigateway.LambdaIntegration(handler, {
-      requestTemplates: { "application/json": '{ "statusCode": "200" }' }
-    });
+    const getWidgetsIntegration = new apigateway.LambdaIntegration(handler);
 
-    api.root.addMethod("GET", getWidgetsIntegration); // GET /
+    api.root.addMethod("POST", getWidgetsIntegration);
   }
 }

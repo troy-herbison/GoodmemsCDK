@@ -7,13 +7,13 @@ export class GoodmemsCdkStack extends core.Stack {
   constructor(scope: core.App, id: string) {
     super(scope, id);
 
-    const bucket = new s3.Bucket(this, "WidgetStore");
+    const bucket = new s3.Bucket(this, "ImageStore");
     bucket.applyRemovalPolicy(core.RemovalPolicy.DESTROY);
 
-    const handler = new lambda.Function(this, "WidgetHandler", {
+    const handler = new lambda.Function(this, "PreSignedUrlHandler", {
       runtime: lambda.Runtime.NODEJS_10_X, 
       code: lambda.Code.fromAsset("resources"),
-      handler: "widgets.main",
+      handler: "images.getPreSignedURLToPutToS3",
       environment: {
         BUCKET: bucket.bucketName
       }
@@ -21,13 +21,13 @@ export class GoodmemsCdkStack extends core.Stack {
 
     bucket.grantReadWrite(handler); 
 
-    const api = new apigateway.RestApi(this, "widgets-api", {
-      restApiName: "Widget Service",
-      description: "This service serves widgets."
+    const api = new apigateway.RestApi(this, "images-api", {
+      restApiName: "Image Service",
+      description: "This service serves images."
     });
 
-    const getWidgetsIntegration = new apigateway.LambdaIntegration(handler);
+    const getImagesIntegration = new apigateway.LambdaIntegration(handler);
 
-    api.root.addMethod("POST", getWidgetsIntegration);
+    api.root.addMethod("POST", getImagesIntegration);
   }
 }

@@ -12,7 +12,7 @@ export class GoodmemsCdkStack extends core.Stack {
 
     const handler = new lambda.Function(this, "PreSignedUrlHandler", {
       runtime: lambda.Runtime.NODEJS_10_X, 
-      code: lambda.Code.fromAsset("resources"),
+      code: lambda.Code.fromAsset("../GoodmemsAPI/Lambda"),
       handler: "images.getPreSignedURLToPutToS3",
       environment: {
         BUCKET: bucket.bucketName
